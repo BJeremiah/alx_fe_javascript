@@ -5,6 +5,23 @@ let quotes = [
   { text: "Stay hungry, stay foolish.", category: "Inspiration" }
 ];
 
+// Simulate fetching data from a server (e.g., JSONPlaceholder)
+async function fetchServerQuotes() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=3');
+    const data = await response.json();
+    // Convert to quote-like objects
+    return data.map(item => ({
+      text: item.title,
+      category: "Server Sync"
+    }));
+  } catch (error) {
+    console.error('Error fetching from server:', error);
+    return [];
+  }
+}
+
+
 // Load quotes from localStorage if available
 function loadQuotes() {
   const storedQuotes = localStorage.getItem('quotes');
@@ -17,6 +34,21 @@ function loadQuotes() {
 function saveQuotes() {
   localStorage.setItem('quotes', JSON.stringify(quotes));
 }
+
+// Sync local quotes with server and resolve conflicts
+async function syncQuotes() {
+  const serverQuotes = await fetchServerQuotes();
+
+  // Conflict resolution: server data takes precedence
+  const combinedQuotes = [...serverQuotes, ...quotes];
+  const uniqueQuotes = Array.from(new Map(combinedQuotes.map(q => [q.text, q])).values());
+
+  quotes = uniqueQuotes;
+  saveQuotes();
+  notifyUser('Quotes synced successfully. Server data prioritized.');
+  console.log('Quotes synced with server');
+}
+
 
 // Show a random quote
 function showRandomQuote() {
@@ -88,6 +120,18 @@ function importFromJsonFile(event) {
   };
   fileReader.readAsText(event.target.files[0]);
 }
+// Notify user of updates
+function notifyUser(message) {
+  const note = document.createElement('div');
+  note.textContent = message;
+  note.style.background = '#ffeb3b';
+  note.style.padding = '10px';
+  note.style.margin = '10px';
+  note.style.borderRadius = '5px';
+  document.body.appendChild(note);
+  setTimeout(() => note.remove(), 3000);
+}
+
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -100,6 +144,9 @@ filterQuotes();
   document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
   document.getElementById('exportBtn').addEventListener('click', exportToJsonFile);
   document.getElementById('importFile').addEventListener('change', importFromJsonFile);
+  
+  setInterval(syncQuotes, 10000); // Sync every 10 seconds
+
 });
 function createAddQuoteForm() {
   const formContainer = document.createElement('div');

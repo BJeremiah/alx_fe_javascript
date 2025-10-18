@@ -132,6 +132,28 @@ function notifyUser(message) {
   setTimeout(() => note.remove(), 3000);
 }
 
+// Simulate fetching quotes from a mock server (e.g., JSONPlaceholder)
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=3');
+    const serverQuotes = await response.json();
+
+    // Convert fetched data to quote objects
+    const fetchedQuotes = serverQuotes.map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+
+    // Conflict resolution: server data takes precedence
+    quotes = [...fetchedQuotes, ...quotes];
+    saveQuotes();
+
+    console.log("Quotes synced from server successfully!");
+  } catch (error) {
+    console.error("Failed to fetch quotes from server:", error);
+  }
+}
+
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -144,7 +166,7 @@ filterQuotes();
   document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
   document.getElementById('exportBtn').addEventListener('click', exportToJsonFile);
   document.getElementById('importFile').addEventListener('change', importFromJsonFile);
-  
+
   setInterval(syncQuotes, 10000); // Sync every 10 seconds
 
 });

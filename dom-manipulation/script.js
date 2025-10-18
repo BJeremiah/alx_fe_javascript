@@ -143,6 +143,13 @@ async function fetchQuotesFromServer() {
       text: post.title,
       category: "Server"
     }));
+     quotes.push(...serverQuotes);
+      saveQuotes();
+
+      console.log("Quotes synced with server!"); // ✅ Add this line
+    })
+    .catch(error => console.error("Error syncing with server:", error));
+}
 
     // Conflict resolution: server data takes precedence
     quotes = [...fetchedQuotes, ...quotes];

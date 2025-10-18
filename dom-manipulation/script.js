@@ -22,7 +22,10 @@ function saveQuotes() {
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  document.getElementById('quoteDisplay').textContent = `"${quote.text}" - ${quote.category}`;
+  
+  const quoteDisplay = document.getElementById('quoteDisplay');
+  quoteDisplay.innerHTML = `<p>"${quote.text}"</p><p><em>Category: ${quote.category}</em></p>`;
+}
 
   // Save last viewed quote to session storage
   sessionStorage.setItem('lastQuote', JSON.stringify(quote));

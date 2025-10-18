@@ -93,6 +93,8 @@ function importFromJsonFile(event) {
 document.addEventListener('DOMContentLoaded', () => {
   loadQuotes();
   showLastViewedQuote();
+  populateCategories();
+filterQuotes();
 
   document.getElementById('newQuote').addEventListener('click', showRandomQuote);
   document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
@@ -125,4 +127,81 @@ function createAddQuoteForm() {
 
   // Finally, append to the body (or another container)
   document.body.appendChild(formContainer);
+}
+// Populate the category dropdown dynamically
+function populateCategories() {
+  const categoryFilter = document.getElementById('categoryFilter');
+  if (!categoryFilter) return; // safety check
+
+  // get unique categories
+  const categories = [...new Set(quotes.map(q => q.category))];
+
+  // clear old options and add default
+  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+
+  // add each category
+  categories.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    categoryFilter.appendChild(option);
+  });
+
+  // restore last selected filter
+  const lastFilter = localStorage.getItem('selectedCategory');
+  if (lastFilter) {
+    categoryFilter.value = lastFilter;
+    filterQuotes();
+  }
+}
+
+// Filter quotes based on selected category
+function filterQuotes() {
+  const categoryFilter = document.getElementById('categoryFilter');
+  const selected = categoryFilter.value;
+  localStorage.setItem('selectedCategory', selected);
+
+  const filtered = selected === 'all'
+    ? quotes
+    : quotes.filter(q => q.category === selected);
+
+  const quoteDisplay = document.getElementById('quoteDisplay');
+  quoteDisplay.innerHTML = filtered.length
+    ? filtered.map(q => `<p>"${q.text}"</p><p><em>Category: ${q.category}</em></p>`).join('<hr>')
+    : `<p>No quotes found in this category.</p>`;
+}
+// Populate the category dropdown dynamically
+function populateCategories() {
+  const categoryFilter = document.getElementById('categoryFilter');
+  if (!categoryFilter) return; // in case the element doesn't exist
+
+  // Extract all unique categories from your quotes array
+  const categories = [...new Set(quotes.map(q => q.category))];
+
+  // Reset dropdown and add the default option
+  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+
+  // Add each unique category to the dropdown
+  categories.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    categoryFilter.appendChild(option);
+  });
+}
+
+// Filter quotes based on the selected category
+function filterQuotes() {
+  const categoryFilter = document.getElementById('categoryFilter');
+  const selected = categoryFilter.value;
+
+  // Filter quotes depending on selected category
+  const filteredQuotes = selected === 'all'
+    ? quotes
+    : quotes.filter(q => q.category === selected);
+
+  const quoteDisplay = document.getElementById('quoteDisplay');
+  quoteDisplay.innerHTML = filteredQuotes.length
+    ? filteredQuotes.map(q => `<p>"${q.text}" - <em>${q.category}</em></p>`).join('<hr>')
+    : `<p>No quotes found in this category.</p>`;
 }

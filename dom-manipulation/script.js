@@ -149,6 +149,17 @@ async function fetchQuotesFromServer() {
     saveQuotes();
 
     console.log("Quotes synced from server successfully!");
+    // Simulate sending updated quotes to the server
+await fetch('https://jsonplaceholder.typicode.com/posts', {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(quotes)
+});
+
+console.log("Quotes successfully sent to the server!");
+
   } catch (error) {
     console.error("Failed to fetch quotes from server:", error);
   }
